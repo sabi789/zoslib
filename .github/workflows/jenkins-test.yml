@@ -26,3 +26,4 @@ jobs:
     with:
       repo: 'https://github.com/zopencommunity/zoslibport.git'
       use_prbranch_as_build_branch: true
+      use_pr_source_url: true
