@@ -195,21 +195,33 @@ TEST_F(CLIBOverrides, open) {
     EXPECT_EQ(strcmp(buff, buff2), 0);
 
     // Test _ENCODE_FILE_EXISTING with IBM-1047
-    unsetenv("_ENCODE_FILE_NEW");
+    setenv("_ENCODE_FILE_NEW", "IBM-1047", 1);
+    
     remove(temp_path);
     fd = open(temp_path, O_CREAT | O_WRONLY, 0777);
-    write(fd, buff, sizeof(buff));
+    write(fd, buff, strlen(buff) + 1);
     close(fd);
     
     setenv("_ENCODE_FILE_EXISTING", "IBM-1047", 1);
+    
     fd = open(temp_path, O_RDONLY);
+    
     EXPECT_EQ(__getfdccsid(fd), 0x10000 + 1047);
-    memset(buff2, 1, sizeof(buff));
+    
+    memset(buff2, 0, sizeof(buff));
     read(fd, buff2, sizeof(buff));
+    
     EXPECT_EQ(strcmp(buff, buff2), 0);
+    
     close(fd);
 
     // Test _ENCODE_FILE_EXISTING with BINARY
+    setenv("_ENCODE_FILE_NEW", "BINARY", 1);
+    remove(temp_path);
+    fd = open(temp_path, O_CREAT | O_WRONLY, 0777);
+    write(fd, buff, strlen(buff) + 1);
+    close(fd);
+    
     setenv("_ENCODE_FILE_EXISTING", "BINARY", 1);
     fd = open(temp_path, O_RDONLY);
     EXPECT_EQ(__getfdccsid(fd), 65535);
@@ -219,6 +231,12 @@ TEST_F(CLIBOverrides, open) {
     close(fd);
 
     // Test _ENCODE_FILE_EXISTING with ISO8859-1
+    setenv("_ENCODE_FILE_NEW", "ISO8859-1", 1);
+    remove(temp_path);
+    fd = open(temp_path, O_CREAT | O_WRONLY, 0777);
+    write(fd, buff, strlen(buff) + 1);
+    close(fd);
+    
     setenv("_ENCODE_FILE_EXISTING", "ISO8859-1", 1);
     fd = open(temp_path, O_RDONLY);
     EXPECT_EQ(__getfdccsid(fd), 0x10000 + 819);
@@ -228,6 +246,12 @@ TEST_F(CLIBOverrides, open) {
     close(fd);
 
     // Test _ENCODE_FILE_EXISTING with UTF-8
+    setenv("_ENCODE_FILE_NEW", "UTF-8", 1);
+    remove(temp_path);
+    fd = open(temp_path, O_CREAT | O_WRONLY, 0777);
+    write(fd, buff, strlen(buff) + 1);
+    close(fd);
+    
     setenv("_ENCODE_FILE_EXISTING", "UTF-8", 1);
     fd = open(temp_path, O_RDONLY);
     EXPECT_EQ(__getfdccsid(fd), 0x10000 + 1208);
