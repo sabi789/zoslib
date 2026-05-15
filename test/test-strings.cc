@@ -49,4 +49,39 @@ TEST(StpcpyTest, CheckStpcpyFunctionality) {
   EXPECT_EQ(*ret2, '\0');
 }
 
+TEST(StpncpyTest, CheckStpncpyFunctionality) {
+  // Test copying with n limit (source shorter than n)
+  const char *src = "hello";
+  char dest[10];
+  memset(dest, 'X', sizeof(dest));  // Initialize with non-zero data
+  char *ret = stpncpy(dest, src, 8);
+  EXPECT_STREQ(dest, "hello");
+  EXPECT_EQ(ret, dest + strlen(src));
+  // Verify padding with zeros - check all padded bytes
+  EXPECT_EQ(dest[5], '\0');
+  EXPECT_EQ(dest[6], '\0');
+  EXPECT_EQ(dest[7], '\0');
+  EXPECT_EQ(dest[8], 'X');  // Byte at index 8 should remain unchanged
+
+  // Test copying when source is longer than n (truncation)
+  const char *src2 = "hello world";
+  char dest2[10] = {0};
+  char *ret2 = stpncpy(dest2, src2, 5);
+  EXPECT_EQ(strncmp(dest2, "hello", 5), 0);
+  EXPECT_EQ(ret2, dest2 + 5);  // Returns dest + n when truncated
+
+  // Test copying exact length (source length equals n)
+  const char *src3 = "test";
+  char dest3[10] = {0};
+  char *ret3 = stpncpy(dest3, src3, 4);
+  EXPECT_EQ(strncmp(dest3, "test", 4), 0);
+  EXPECT_EQ(ret3, dest3 + 4);  // Returns dest + n when len == n
+
+  // Test with n = 0
+  char dest4[10] = "unchanged";
+  char *ret4 = stpncpy(dest4, "test", 0);
+  EXPECT_STREQ(dest4, "unchanged");
+  EXPECT_EQ(ret4, dest4);  // Returns dest when n == 0
+}
+
 } // namespace
