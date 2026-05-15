@@ -892,6 +892,13 @@ int __open_ascii(const char *filename, int opts, ...) {
     // Enable auto-conversion of untagged files
     else if (S_ISREG(sb.st_mode)) {
       __tag_existing_file(fd);
+
+      // Refresh file tag state after retagging
+      struct stat updated_sb;
+      if (fstat(fd, &updated_sb) == 0) {
+        sb = updated_sb;
+      }
+
       errno = old_errno;
       struct file_tag *t = &sb.st_tag;
       if (t->ft_txtflag == 0 && (t->ft_ccsid == 0 || t->ft_ccsid == 1047) &&
@@ -937,6 +944,13 @@ FILE *__fopen_ascii(const char *filename, const char *mode) {
     // Enable auto-conversion of untagged files
     else if (S_ISREG(sb.st_mode)) {
       __tag_existing_file(fd);
+
+      // Refresh file tag state after retagging
+      struct stat updated_sb;
+      if (fstat(fd, &updated_sb) == 0) {
+        sb = updated_sb;
+      }
+
       errno = old_errno;
       struct file_tag *t = &sb.st_tag;
       if (t->ft_txtflag == 0 && (t->ft_ccsid == 0 || t->ft_ccsid == 1047) &&
