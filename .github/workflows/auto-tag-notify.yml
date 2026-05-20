@@ -1,7 +1,8 @@
 name: Auto-tag and notify downstream
 
 on:
-  pull_request:
+  # Use pull_request_target so secrets are available even for fork-based PRs
+  pull_request_target:
     types: [closed]
     branches: [zopen2]
   release:
@@ -13,28 +14,30 @@ permissions:
 jobs:
   auto-tag-and-notify:
     if: >
-      (github.event_name == 'pull_request' && github.event.pull_request.merged == true) ||
+      (github.event_name == 'pull_request_target' && github.event.pull_request.merged == true) ||
       github.event_name == 'release'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      # Pin all actions to immutable commit SHAs for supply-chain security
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
         with:
           fetch-depth: 0
 
       # --- Tag creation (only on PR merge) ---
       - name: Bump version and push tag
-        if: github.event_name == 'pull_request'
+        if: github.event_name == 'pull_request_target'
         id: tag_version
-        uses: anothrNick/github-tag-action@v1
+        uses: anothrNick/github-tag-action@4ed44965e0db8dab2b466a16da04aec3cc312fd8 # 1.75.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           DEFAULT_BUMP: patch
           WITH_V: true
           TAG_CONTEXT: branch
 
-      # --- Downstream notification (always) ---
+      # --- Downstream notification (runs even if tagging fails) ---
       - name: Notify downstream zoslibport
-        uses: peter-evans/repository-dispatch@v4
+        if: '!cancelled()'
+        uses: peter-evans/repository-dispatch@28959ce8df70de7be546dd1250a005dd32156697 # v4.0.1
         with:
           token: ${{ secrets.BUMP_TOKEN }}
           repository: zopencommunity/zoslibport
