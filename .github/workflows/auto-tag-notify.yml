@@ -21,6 +21,9 @@ jobs:
       # Pin all actions to immutable commit SHAs for supply-chain security
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
         with:
+          # For pull_request_target: checkout the merge commit on zopen2
+          # For release: checkout the release tag
+          ref: ${{ github.event_name == 'pull_request_target' && github.event.pull_request.merge_commit_sha || github.event.release.tag_name }}
           fetch-depth: 0
 
       # --- Tag creation (only on PR merge) ---
