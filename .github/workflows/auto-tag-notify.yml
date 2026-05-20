@@ -1,0 +1,41 @@
+name: Auto-tag and notify downstream
+
+on:
+  pull_request:
+    types: [closed]
+    branches: [zopen2]
+  release:
+    types: [published]
+
+permissions:
+  contents: write
+
+jobs:
+  auto-tag-and-notify:
+    if: >
+      (github.event_name == 'pull_request' && github.event.pull_request.merged == true) ||
+      github.event_name == 'release'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # --- Tag creation (only on PR merge) ---
+      - name: Bump version and push tag
+        if: github.event_name == 'pull_request'
+        id: tag_version
+        uses: anothrNick/github-tag-action@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DEFAULT_BUMP: patch
+          WITH_V: true
+          TAG_CONTEXT: branch
+
+      # --- Downstream notification (always) ---
+      - name: Notify downstream zoslibport
+        uses: peter-evans/repository-dispatch@v4
+        with:
+          token: ${{ secrets.BUMP_TOKEN }}
+          repository: zopencommunity/zoslibport
+          event-type: upstream-release
