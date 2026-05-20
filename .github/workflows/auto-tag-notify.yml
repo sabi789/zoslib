@@ -37,6 +37,16 @@ jobs:
           WITH_V: true
           TAG_CONTEXT: branch
 
+      - name: Create release with notes
+        if: github.event_name == 'pull_request_target' && steps.tag_version.outputs.new_tag
+        uses: softprops/action-gh-release@3bb12739c298aeb8a4eeaf626c5b8d85266b0e65 # v2.6.2
+        with:
+          tag_name: ${{ steps.tag_version.outputs.new_tag }}
+          name: ${{ steps.tag_version.outputs.new_tag }}
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       # --- Downstream notification (runs even if tagging fails) ---
       - name: Notify downstream zoslibport
         if: '!cancelled()'
