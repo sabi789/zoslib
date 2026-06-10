@@ -768,6 +768,17 @@ int __tag_existing_file(int fd) {
     return 0;
   }
 
+  // Check if file is untagged before applying _ENCODE_FILE_EXISTING
+  struct stat st;
+  if (fstat(fd, &st) != 0) {
+    return -1;
+  }
+
+  // Only tag if file is untagged (ccsid == 0)
+  if (st.st_tag.ft_ccsid != 0) {
+    return 0;
+  }
+
   if (strcmp(encode_file_existing, "BINARY") == 0) {
     return __setfdbinary(fd);
   }
