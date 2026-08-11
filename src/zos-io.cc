@@ -716,7 +716,7 @@ int __disableautocvt(int fd) {
   return fcntl(fd, F_CONTROL_CVT, &req);
 }
 
-int __tag_new_file_fp(FILE* fp) {
+static int __tag_new_file_fp(FILE* fp) {
   int fd = fileno(fp);
   char* encode_file_new = getenv("_ENCODE_FILE_NEW");
 
@@ -787,8 +787,8 @@ int __getLogMemoryFileNo() {
   return fn;
 }
 
-// Defined in zos.cc, no need to expose it:
-extern void __setLogMemoryUsage(bool value);
+// Forward declaration for static function
+static void __setLogMemoryUsage(bool value);
 
 void __memprintf(const char *format, ...) {
   if (!__doLogMemoryUsage())
@@ -1094,7 +1094,7 @@ bool __doLogMemoryInc(size_t curval, size_t *plastval) {
 
 bool __doLogMemoryUsage() { return __gLogMemoryUsage; }
 
-void __setLogMemoryUsage(bool v) { __gLogMemoryUsage = v; }
+static void __setLogMemoryUsage(bool v) { __gLogMemoryUsage = v; }
 
 char *__getMemoryUsageLogFile() { return __gMemoryUsageLogFile; }
 

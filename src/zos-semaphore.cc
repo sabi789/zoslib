@@ -25,7 +25,7 @@ static int returnStatus(int error, const char *msg) {
   return 0;
 }
 
-unsigned int __zsync_val_compare_and_swap32(volatile unsigned int *__p,
+static unsigned int __zsync_val_compare_and_swap32(volatile unsigned int *__p,
                                             unsigned int __compVal,
                                             unsigned int __exchVal) {
   unsigned int initv;

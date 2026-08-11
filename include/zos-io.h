@@ -105,6 +105,14 @@ __Z_EXPORT int __chgfdccsid(int fd, unsigned short ccsid);
 __Z_EXPORT int __chgfdcodeset(int fd, char* codeset);
 
 /**
+ * Change pathname to CCSID.
+ * \param [in] pathname path name.
+ * \param [in] ccsid CCSID.
+ * \return returns 0 if successful, or -1 on failure.
+ */
+__Z_EXPORT int __chgpathccsid(char* pathname, unsigned short ccsid);
+
+/**
  * Change file descriptor to text (819 or controlled via envar)
  * \param [in] fd file descriptor.
  * \return returns 0 if successful, or -1 on failure.
