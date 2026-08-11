@@ -625,7 +625,7 @@ static void *_timer(void *parm) {
   return 0; // avoid compiler warning
 }
 
-extern void __settimelimit(int secs) {
+static void __settimelimit(int secs) {
   pthread_attr_t attr;
   int rc;
   timer_parm_t *tp = (timer_parm_t *)malloc(sizeof(timer_parm_t));
@@ -1818,7 +1818,7 @@ typedef struct loadmod {
   char *_1[32];
 } loadmod_t;
 
-extern void __unloadmod(void *mod) {
+static void __unloadmod(void *mod) {
   loadmod_t *m = (loadmod_t *)mod;
   if (!m)
     return;
@@ -1838,7 +1838,7 @@ extern void __unloadmod(void *mod) {
 // __loadmod() and __callmod() supported only by __ibmxl__;
 // have to identify workaround for the amode24/31 query status.
 
-extern void *__loadmod(const char *name) {
+static void *__loadmod(const char *name) {
   loadmod_t *m = (loadmod_t *)__malloc31(sizeof(loadmod_t));
   if (!m)
     return 0; // fail to allocate
@@ -1892,7 +1892,7 @@ extern void *__loadmod(const char *name) {
 // FIXME: noinline is specified, otherwise we get an error: No active USING for
 // operand H3090
 
-__attribute__((noinline)) extern long __callmod(void *mod, void *plist) {
+__attribute__((noinline)) static long __callmod(void *mod, void *plist) {
   loadmod_t *m = (loadmod_t *)mod;
   long rc;
   if (!mod)
