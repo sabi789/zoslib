@@ -891,16 +891,20 @@ int __open_ascii(const char *filename, int opts, ...) {
     }
     // Enable auto-conversion of untagged files
     else if (S_ISREG(sb.st_mode)) {
-      __tag_existing_file(fd);
-
-      // Refresh file tag state after retagging
-      struct stat updated_sb;
-      if (fstat(fd, &updated_sb) == 0) {
-        sb = updated_sb;
-      }
-
-      errno = old_errno;
       struct file_tag *t = &sb.st_tag;
+      // Only apply _ENCODE_FILE_EXISTING to truly untagged files (ccsid == 0)
+      if (t->ft_txtflag == 0 && t->ft_ccsid == 0) {
+        __tag_existing_file(fd);
+        
+        // Refresh file tag state after retagging
+        struct stat updated_sb;
+        if (fstat(fd, &updated_sb) == 0) {
+          sb = updated_sb;
+          t = &sb.st_tag;
+        }
+      }
+      
+      errno = old_errno;
       if (t->ft_txtflag == 0 && (t->ft_ccsid == 0 || t->ft_ccsid == 1047) &&
           (opts & O_RDONLY) != 0) {
         if (__file_needs_conversion_init(filename, fd)) {
@@ -943,16 +947,20 @@ FILE *__fopen_ascii(const char *filename, const char *mode) {
     }
     // Enable auto-conversion of untagged files
     else if (S_ISREG(sb.st_mode)) {
-      __tag_existing_file(fd);
-
-      // Refresh file tag state after retagging
-      struct stat updated_sb;
-      if (fstat(fd, &updated_sb) == 0) {
-        sb = updated_sb;
-      }
-
-      errno = old_errno;
       struct file_tag *t = &sb.st_tag;
+      // Only apply _ENCODE_FILE_EXISTING to truly untagged files (ccsid == 0)
+      if (t->ft_txtflag == 0 && t->ft_ccsid == 0) {
+        __tag_existing_file(fd);
+        
+        // Refresh file tag state after retagging
+        struct stat updated_sb;
+        if (fstat(fd, &updated_sb) == 0) {
+          sb = updated_sb;
+          t = &sb.st_tag;
+        }
+      }
+      
+      errno = old_errno;
       if (t->ft_txtflag == 0 && (t->ft_ccsid == 0 || t->ft_ccsid == 1047) &&
           strcmp(mode, "r") == 0) {
         __disableautocvt(fd); // disable z/OS autocvt on untagged file and use our heuristic
